@@ -79,7 +79,7 @@ print(f'Training data r-squared: {regressorsquared:.2}')
 
 #Evaluate the Coefficients of the Model
 reg_coef = pd.DataFrame(data = regressor.coef_, index=X_train.columns, columns =['Coefficient'])
-print(reg_coef)
+
 
 
 #Analyse the Estimated Values & Regression Residuals
@@ -95,7 +95,7 @@ plt.plot(y_train, y_train, color='red')
 plt.title(f'Actual vs Predicted Prices: $y _i$ vs $\hat y_i$', fontsize=17)
 plt.xlabel('Actual prices 000s $y _i$', fontsize=14)
 plt.ylabel('Prediced prices 000s $\hat y _i$', fontsize=14)
-plt.show()
+# plt.show()
 
 # Residuals vs Predicted values
 plt.figure(dpi=100)
@@ -103,7 +103,7 @@ plt.scatter(x=predicted_values, y=residuals, c='indigo', alpha=0.6)
 plt.title('Residuals vs Predicted Values', fontsize=17)
 plt.xlabel('Predicted Prices $\hat y _i$', fontsize=14)
 plt.ylabel('Residuals', fontsize=14)
-plt.show()
+# plt.show()
 
 
 #Residual Distribution Chart
@@ -112,4 +112,56 @@ resid_skew = round(residuals.skew(), 2)
 
 sns.displot(residuals, kde=True, color="indigo")
 plt.title(f'Residuals Skew ({resid_skew}) Mean ({resid_mean})')
+# plt.show()
+
+
+#Data Transformation for a Better Fit
+tgt_skew = data["PRICE"].skew()
+sns.displot(data['PRICE'], kde="kde", color="green")
+plt.title(f'Normal Prices. Skew is {tgt_skew:.3}')
 plt.show()
+
+y_log = np.log(data['PRICE'])
+sns.displot(y_log, kde=True)
+plt.title(f"Log Prices. Skew is {y_log.skew():.3}")
+plt.show()
+
+""" The log prces have a skew that's closer to zero. This makes 
+    a good candidate for use in our mode. Perhaps using log prices
+    will improve our regression's r-squared and our residuals."""
+
+
+plt.figure(dpi=150)
+plt.scatter(data.PRICE, np.log(data.PRICE))
+
+plt.title("Mapping the Original Price to a Log Price")
+plt.ylabel("Log Price")
+plt.xlabel("Actual $ Price in 000s")
+plt.show()
+
+#Regression usng Log Prices
+new_target = np.log(data["PRICE"])
+features = data.drop("PRICE", axis=1)
+X_train, X_test, log_y_train, log_y_test = train_test_split(features,
+                                                            new_target,
+                                                            test_size=0.2,
+                                                            random_state=10)
+
+log_regr = LinearRegression()
+log_regr.fit(X_train, log_y_train)
+log_rsquared = log_regr.score(X_train, log_y_train)
+
+log_predictions = log_regr.predict(X_train)
+log_residuals = (log_y_train - log_predictions)
+
+print(f'Training data r-squared: {log_rsquared:.2}')
+
+"""Greater r-squared closer to 1 is more promising."""
+
+#Evaluating Coefficients with Log Prices
+df_coef = pd.DataFrame(data = log_regr.coef_, index=X_train.columns, columns=['coef'])
+
+
+#Sample of Performance
+print(f'Original Model Test Data r-squared: {regressor.score(X_test, y_test):.2}')
+print(f'Log Model Test Data r-squared: {log_regr.score(X_test, log_y_test):.2}')
