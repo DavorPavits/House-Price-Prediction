@@ -68,3 +68,48 @@ print(f'Training data is {train_pct:.3}% of the total data.')
 #% of test data set
 test_pct = 100 *X_test.shape[0]/features.shape[0]
 print(f"Test data makes up the remaining {test_pct:0.3}%")
+
+#Multivariable Regression
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+regressorsquared = regressor.score(X_train, y_train)
+
+print(f'Training data r-squared: {regressorsquared:.2}')
+
+
+#Evaluate the Coefficients of the Model
+reg_coef = pd.DataFrame(data = regressor.coef_, index=X_train.columns, columns =['Coefficient'])
+print(reg_coef)
+
+
+#Analyse the Estimated Values & Regression Residuals
+""" How good our regression is depends on both r-squared and residuals"""
+predicted_values = regressor.predict(X_train)
+residuals = (y_train - predicted_values)
+
+
+# Original Regression of Actual vs. Predicted Prices
+plt.figure(dpi=100)
+plt.scatter(x=y_train, y=predicted_values, c='indigo', alpha=0.6)
+plt.plot(y_train, y_train, color='red')
+plt.title(f'Actual vs Predicted Prices: $y _i$ vs $\hat y_i$', fontsize=17)
+plt.xlabel('Actual prices 000s $y _i$', fontsize=14)
+plt.ylabel('Prediced prices 000s $\hat y _i$', fontsize=14)
+plt.show()
+
+# Residuals vs Predicted values
+plt.figure(dpi=100)
+plt.scatter(x=predicted_values, y=residuals, c='indigo', alpha=0.6)
+plt.title('Residuals vs Predicted Values', fontsize=17)
+plt.xlabel('Predicted Prices $\hat y _i$', fontsize=14)
+plt.ylabel('Residuals', fontsize=14)
+plt.show()
+
+
+#Residual Distribution Chart
+resid_mean = round(residuals.mean(), 2)
+resid_skew = round(residuals.skew(), 2)
+
+sns.displot(residuals, kde=True, color="indigo")
+plt.title(f'Residuals Skew ({resid_skew}) Mean ({resid_mean})')
+plt.show()
