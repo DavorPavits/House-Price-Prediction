@@ -184,3 +184,27 @@ print(f'The log price estimate is ${log_estimate:.3}')
 #Convert Log Prices to Actual Dollar Values
 dollar_est = np.e ** log_estimate * 1000
 print(f'The property is estimated to be worth ${dollar_est:.6}')
+
+
+#Futher Work
+#Define Property Characteristics
+next_to_river = True
+nr_rooms = 3
+students_per_classroom = 20
+distance_to_town = 5
+
+#Set Property Characteristics
+property_stats['RM'] = nr_rooms
+property_stats["PTRATIO"] = students_per_classroom
+property_stats["DIS"] = distance_to_town
+
+
+#Make prediction
+log_estimate = log_regr.predict(property_stats)[0]
+print(f'The log price estimate is ${log_estimate:.3}')
+
+#Convert Log Prices To Actual Dollar Values
+dollar_est = np.e**log_estimate * 1000
+print(f'The property is estimated to be worth ${dollar_est:.6}')
+
+
