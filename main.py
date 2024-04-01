@@ -165,3 +165,22 @@ df_coef = pd.DataFrame(data = log_regr.coef_, index=X_train.columns, columns=['c
 #Sample of Performance
 print(f'Original Model Test Data r-squared: {regressor.score(X_test, y_test):.2}')
 print(f'Log Model Test Data r-squared: {log_regr.score(X_test, log_y_test):.2}')
+
+
+#Predict a Property's Value using the Regression Coefficients
+
+#Starting Point: Average Values in the Dataset
+features = data.drop(['PRICE'], axis=1)
+average_vals = features.mean().values
+property_stats = pd.DataFrame(data=average_vals.reshape(1, len(features.columns)),
+                              columns = features.columns
+                              )
+
+
+#Make prediciton
+log_estimate = log_regr.predict(property_stats)[0]
+print(f'The log price estimate is ${log_estimate:.3}')
+
+#Convert Log Prices to Actual Dollar Values
+dollar_est = np.e ** log_estimate * 1000
+print(f'The property is estimated to be worth ${dollar_est:.6}')
